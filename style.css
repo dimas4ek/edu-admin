@@ -3,17 +3,22 @@
     flex-direction: row;
 }
 
+.divider {
+    width: 1px;
+    background-color: #ddd;
+    margin: 10px;
+}
+
 .log-entry p span {
     display: flex;
 }
 
 .change-table {
-    max-width: 600px; /* Максимальная ширина таблицы */
+    max-width: 600px;
     border-collapse: collapse;
-    width: 100%; /* Добавлено для поддержки IE */
+    width: 100%;
 }
 
-/* Стилизация заголовков */
 .change-table th {
     background-color: #f2f2f2;
     border: 1px solid #ddd;
@@ -21,15 +26,55 @@
     text-align: left;
 }
 
-/* Стилизация ячеек */
 .change-table td {
     border: 1px solid #ddd;
     padding: 8px;
 }
 
-/* Стилизация строк с изменениями */
 .change-table .change-row {
-    background-color: #e6f7ff; /* Цвет фона для выделения изменений */
+    background-color: #e6f7ff;
 }
+
+
+.reports-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.parameter-header {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    background-color: #f2f2f2;
+}
+
+.parameter {
+    padding: 8px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.teacher-name {
+    padding-right: 10px;
+}
+
+.student-count {
+    padding-left: 10px;
+}
+
+.inner-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.inner-table td {
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+.inner-table tr:hover {
+    background-color: #f5f5f5;
+}
+
 
 

@@ -1,10 +1,11 @@
 <?php
 require_once '../admin.php';
 
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username']) && isset($_POST['password'])) {
     $username = $_POST['username'];
     $password = $_POST['password'];
-    login($username, $password);
+    loginAccount($username, $password);
 }
 
 echo '<form method="post">
@@ -15,4 +16,5 @@ echo '<form method="post">
     <input type="password" id="password" name="password">
     <button type="submit">Войти</button>
 </form>';
+
 ?>

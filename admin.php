@@ -114,7 +114,7 @@ function countStudentsByTeacher()
     return $stmt->fetchAll();
 }
 
-function login($username, $password)
+function loginAccount($username, $password)
 {
     global $pdo;
     $stmt = $pdo->prepare('SELECT * FROM admins WHERE username = ?');

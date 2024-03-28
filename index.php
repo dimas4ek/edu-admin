@@ -17,6 +17,55 @@ function generateTeacherOptions()
     }
 }
 
+function reports() {
+    $youngest_first_grader = youngestFirstGrader();
+    $count_second_graders = countSecondGraders();
+    $students_by_teacher = countStudentsByTeacher();
+
+    echo '
+<table class="reports-table">
+    <tr>
+        <th class="parameter-header">Самый младший первоклассник</th>
+        <th class="parameter-header">Количество второклассников</th>
+        <th class="parameter-header">Количество учеников у каждого классного руководителя</th>
+    </tr>
+    <tr>';
+    if($youngest_first_grader) {
+        echo '<td class="parameter">' . $youngest_first_grader['first_name'] . ' ' . $youngest_first_grader['last_name'] . '</td>';
+    } else {
+        echo '<td class="parameter">Нет</td>';
+    }
+    echo '
+        <td class="parameter">' . $count_second_graders . '</td>
+        <td class="parameter">
+            <table class="inner-table">';
+                foreach ($students_by_teacher as $row) {
+                    echo '<tr><td class="teacher-name">' . $row['name'] . '</td><td class="student-count">' . $row['count'] . ' учеников</td></tr>';
+                }
+                echo '
+            </table>
+        </td>
+    </tr>
+</table>';
+}
+
+function login() {
+    session_start();
+    if (!isset($_SESSION['username'])) {
+        header('Location: actions/login.php');
+    }
+}
+
+function logout() {
+    if (isset($_SESSION['username'])) {
+        echo 'Вы вошли как ' . $_SESSION['username'];
+        echo '
+<form action="actions/logout.php">
+    <br><button type="submit">Выйти</button>
+</form>';
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -29,14 +78,10 @@ function generateTeacherOptions()
 </head>
 <body>
 <h1>Управление учениками и классами</h1>
-
+<hr>
 <div class="container">
-    <?php
-    session_start();
-    if (!isset($_SESSION['username'])) {
-        header('Location: actions/login.php');
-    }
-    ?>
+    <?php login(); ?>
+
     <div class="student-management">
         <h2>Добавление ученика</h2>
         <form action="actions/add_student.php" method="post">
@@ -52,6 +97,8 @@ function generateTeacherOptions()
             <select name="class" id="class">
                 <?php generateClassOptions(); ?>
             </select>
+            <br>
+            <br>
             <button type="submit">Добавить ученика</button>
         </form>
 
@@ -76,25 +123,15 @@ function generateTeacherOptions()
         </form>
 
         <h2>Отчеты</h2>
-        <ul>
-            <li>Самый младший первоклассник: <a href="actions/youngest_first_grader.php">Показать</a></li>
-            <li>Количество учеников во всех вторых классах: <a href="actions/count_second_graders.php">Показать</a></li>
-            <li>Количество учеников у каждого классного руководителя: <a href="actions/students_by_teacher.php">Показать</a>
-            </li>
-        </ul>
+        <?php reports(); ?>
     </div>
+
+    <div class="divider"></div>
 
     <div class="admin-management">
         <div class="account">
             <h2>Аккаунт</h2>
-            <?php
-            if (isset($_SESSION['username'])) {
-                echo 'Вы вошли как ' . $_SESSION['username'];
-                echo '<form action="actions/logout.php">
-                        <br><button type="submit">Выйти</button>
-                    </form>';
-            }
-            ?>
+            <?php logout()?>
         </div>
 
         <div class="audit">
