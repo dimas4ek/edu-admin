@@ -21,8 +21,9 @@ create table classes
 create table students
 (
     id          int primary key auto_increment,
-    name        varchar(255),
+    first_name        varchar(255),
     middle_name varchar(255),
+    last_name varchar(255),
     dob         date,
     class_id    int references classes (id)
 );
