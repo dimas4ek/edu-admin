@@ -1,5 +1,8 @@
 <?php
 require_once 'admin.php';
+require_once 'actions/login.php';
+require_once 'actions/students_by_class.php';
+require_once 'actions/audit.php';
 
 function generateClassOptions()
 {
@@ -17,7 +20,8 @@ function generateTeacherOptions()
     }
 }
 
-function reports() {
+function reports()
+{
     $youngest_first_grader = youngestFirstGrader();
     $count_second_graders = countSecondGraders();
     $students_by_teacher = countStudentsByTeacher();
@@ -30,7 +34,7 @@ function reports() {
         <th class="parameter-header">Количество учеников у каждого классного руководителя</th>
     </tr>
     <tr>';
-    if($youngest_first_grader) {
+    if ($youngest_first_grader) {
         echo '<td class="parameter">' . $youngest_first_grader['first_name'] . ' ' . $youngest_first_grader['last_name'] . '</td>';
     } else {
         echo '<td class="parameter">Нет</td>';
@@ -39,24 +43,18 @@ function reports() {
         <td class="parameter">' . $count_second_graders . '</td>
         <td class="parameter">
             <table class="inner-table">';
-                foreach ($students_by_teacher as $row) {
-                    echo '<tr><td class="teacher-name">' . $row['name'] . '</td><td class="student-count">' . $row['count'] . ' учеников</td></tr>';
-                }
-                echo '
+    foreach ($students_by_teacher as $row) {
+        echo '<tr><td class="teacher-name">' . $row['name'] . '</td><td class="student-count">' . $row['count'] . ' учеников</td></tr>';
+    }
+    echo '
             </table>
         </td>
     </tr>
 </table>';
 }
 
-function login() {
-    session_start();
-    if (!isset($_SESSION['username'])) {
-        header('Location: actions/login.php');
-    }
-}
-
-function logout() {
+function logout()
+{
     if (isset($_SESSION['username'])) {
         echo 'Вы вошли как ' . $_SESSION['username'];
         echo '
@@ -66,6 +64,26 @@ function logout() {
     }
 }
 
+function getStudents()
+{
+    if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['class'])) {
+        header('Location: ' . $_SERVER['PHP_SELF']);
+
+        $class = $_GET['class'];
+        $students = getStudentsByClass($class);
+
+        $_SESSION['students'] = $students;
+        $_SESSION['class'] = $class;
+    }
+}
+
+function showAudit()
+{
+    if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['audit'])) {
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        $_SESSION['audit'] = true;
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -80,65 +98,80 @@ function logout() {
 <h1>Управление учениками и классами</h1>
 <hr>
 <div class="container">
-    <?php login(); ?>
+    <?php session_status() === PHP_SESSION_ACTIVE || session_start();
+    if (isset($_SESSION['username'])): ?>
+        <?php
+        if (isset($_SESSION['students'])): studentsByClass($_SESSION['class'], $_SESSION['students']); ?>
+        <?php else : ?>
+            <div class="student-management">
+                <h2>Добавление ученика</h2>
+                <form action="actions/add_student.php" method="post">
+                    <label for="firstName">Фамилия:</label><br>
+                    <input type="text" id="firstName" name="firstName" required><br>
+                    <label for="lastName">Имя:</label><br>
+                    <input type="text" id="lastName" name="lastName" required><br>
+                    <label for="middleName">Отчество:</label><br>
+                    <input type="text" id="middleName" name="middleName"><br>
+                    <label for="dob">Дата рождения:</label><br>
+                    <input type="date" id="dob" name="dob" required><br>
+                    <label for="class">Класс:</label><br>
+                    <select name="class" id="class">
+                        <?php generateClassOptions(); ?>
+                    </select>
+                    <br>
+                    <br>
+                    <button type="submit">Добавить ученика</button>
+                </form>
 
-    <div class="student-management">
-        <h2>Добавление ученика</h2>
-        <form action="actions/add_student.php" method="post">
-            <label for="firstName">Фамилия:</label><br>
-            <input type="text" id="firstName" name="firstName" required><br>
-            <label for="lastName">Имя:</label><br>
-            <input type="text" id="lastName" name="lastName" required><br>
-            <label for="middleName">Отчество:</label><br>
-            <input type="text" id="middleName" name="middleName"><br>
-            <label for="dob">Дата рождения:</label><br>
-            <input type="date" id="dob" name="dob" required><br>
-            <label for="class">Класс:</label><br>
-            <select name="class" id="class">
-                <?php generateClassOptions(); ?>
-            </select>
-            <br>
-            <br>
-            <button type="submit">Добавить ученика</button>
-        </form>
+                <h2>Ученики в классе</h2>
+                <form method="get">
+                    <label for="classSelect">Выберите класс:</label>
+                    <select name="class" id="classSelect">
+                        <?php generateClassOptions(); ?>
+                    </select>
+                    <button type="submit">Показать учеников</button>
+                </form>
+                <?php getStudents(); ?>
 
-        <h2>Ученики в классе</h2>
-        <form action="actions/students_by_class.php" method="get">
-            <label for="classSelect">Выберите класс:</label>
-            <select name="class" id="classSelect">
-                <?php generateClassOptions(); ?>
-            </select>
-            <button type="submit">Показать учеников</button>
-        </form>
+                <h2>Назначить классного руководителя</h2>
+                <form action="actions/assign_class_teacher.php" method="post">
+                    <select name="class" id="class">
+                        <?php generateClassOptions(); ?>
+                    </select>
+                    <select name="teacher" id="teacher">
+                        <?php generateTeacherOptions(); ?>
+                    </select>
+                    <button type="submit">Назначить</button>
+                </form>
 
-        <h2>Назначить классного руководителя</h2>
-        <form action="actions/assign_class_teacher.php" method="post">
-            <select name="class" id="class">
-                <?php generateClassOptions(); ?>
-            </select>
-            <select name="teacher" id="teacher">
-                <?php generateTeacherOptions(); ?>
-            </select>
-            <button type="submit">Назначить</button>
-        </form>
+                <h2>Отчеты</h2>
+                <?php reports(); ?>
+            </div>
+        <?php endif; ?>
 
-        <h2>Отчеты</h2>
-        <?php reports(); ?>
-    </div>
+        <div class="divider"></div>
 
-    <div class="divider"></div>
+        <?php if (isset($_SESSION['audit'])): audit() ?>
+        <?php else : ?>
+            <div class="admin-management">
+                <div class="account">
+                    <h2>Аккаунт</h2>
+                    <?php logout() ?>
+                </div>
 
-    <div class="admin-management">
-        <div class="account">
-            <h2>Аккаунт</h2>
-            <?php logout()?>
-        </div>
+                <div class="audit">
+                    <h2>Журнал аудита</h2>
+                    <form method="get">
+                        <input type="hidden" name="audit" value="1">
+                        <button type="submit">Показать</button>
+                    </form>
+                    <?php showAudit(); ?>
+                </div>
+            </div>
+        <?php endif; ?>
 
-        <div class="audit">
-            <h2>Журнал аудита</h2>
-            <button type="button" onclick="window.location.href='actions/audit.php'">Показать</button>
-        </div>
-    </div>
+    <?php else: login(); ?>
+    <?php endif; ?>
 </div>
 </body>
 </html>

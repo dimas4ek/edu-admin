@@ -1,17 +1,22 @@
 <?php
-require_once '../admin.php';
 
-echo '<h2>Журнал аудита</h2>';
+function audit()
+{
+    echo '<div class="audit"><div>
+<form action="actions/back_audit.php">
+    <button type="submit">Назад</button>
+</form></div>';
+    echo '<div><h2>Журнал аудита</h2></div>';
 
-$audit = getAudit();
+    $audit = getAudit();
 
-if(empty($audit)) {
-    echo 'Журнал пуст';
-} else {
-    foreach ($audit as $log) {
-        $admin = getAdminById($log['admin_id']);
-        $details = getAuditDetailsByLogId($log['id']);
-        echo '
+    if (empty($audit)) {
+        echo 'Журнал пуст</div>';
+    } else {
+        foreach ($audit as $log) {
+            $admin = getAdminById($log['admin_id']);
+            $details = getAuditDetailsByLogId($log['id']);
+            echo '
         <div class="log-entry">
             <p>
                 <span><b>' . $log['id'] . '</b></span>
@@ -33,10 +38,10 @@ if(empty($audit)) {
                 </table>
             </div>
         </div>';
+        }
+
     }
-
 }
-
 ?>
 <style>
     <?php include '../style.css';?>

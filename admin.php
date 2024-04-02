@@ -121,12 +121,18 @@ function loginAccount($username, $password)
     $stmt->execute([$username]);
     $user = $stmt->fetch();
 
-    if ($user && $user['password'] === $password) {
-        session_start();
+    if(password_verify($password, $user['password'])) {
+        session_status() === PHP_SESSION_ACTIVE || session_start();
         $_SESSION['username'] = $username;
-        header('Location: ../index.php');
+        header('Location: ' . $_SERVER['HTTP_REFERER']);
         exit();
-    } else {
+    }
+    /*if ($user && $user['password'] === $password) {
+        session_status() === PHP_SESSION_ACTIVE || session_start();
+        $_SESSION['username'] = $username;
+        header('Location: ' . $_SERVER['HTTP_REFERER']);
+        exit();
+    }*/ else {
         echo "Неправильный логин или пароль";
     }
 }
