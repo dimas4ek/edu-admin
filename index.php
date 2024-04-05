@@ -80,7 +80,7 @@ function getStudents()
 function showAudit()
 {
     if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['audit'])) {
-        header('Location: ' . $_SERVER['PHP_SELF']);
+        //header('Location: ' . $_SERVER['PHP_SELF']);
         $_SESSION['audit'] = true;
     }
 }
